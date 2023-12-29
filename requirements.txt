@@ -5,3 +5,6 @@ PyMySQL==1.1.0
 sqlparse==0.4.4
 typing_extensions==4.9.0
 tzdata==2023.3
+
+cloudinary~=1.37.0
+djangorestframework~=3.14.0

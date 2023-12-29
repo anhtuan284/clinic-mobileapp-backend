@@ -1,0 +1,52 @@
+{% extends 'admin/base_site.html' %}
+
+{% block content %}
+<h1>THỐNG KÊ BÁO CÁO</h1>
+
+<ul>
+    {% for c in stats %}
+    <li><strong>{{ c.name }}</strong>: <span style="color: red;">{{ c.count }}</span></li>
+    {% endfor %}
+</ul>
+
+<canvas id="myChart"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+window.onload = () => {
+    const ctx = document.getElementById('myChart');
+
+    let data = [];
+    let labels = [];
+    {% for c in stats %}
+    data.push({{ c.count }})
+    labels.push('{{ c.name }}')
+    {% endfor %}
+
+  new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: '# Quatity',
+        data: data,
+        borderWidth: 1,
+        backgroundColor: [
+              'rgb(255, 99, 132)',
+              'rgb(54, 162, 235)',
+              'rgb(255, 205, 86)'
+            ],
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+}
+
+</script>
+{% endblock %}

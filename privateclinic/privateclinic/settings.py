@@ -37,7 +37,21 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "clinic.apps.ClinicConfig",
+    'rest_framework',
+    'drf_yasg',
+    'cloudinary',
+    'oauth2_provider'
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS':
+        'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 2
+    # 'DEFAULT_AUTHENTICATION_CLASSES': (
+    #     'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+    # )
+}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -86,6 +100,14 @@ DATABASES = {
         'HOST': ''  # mặc định localhost
     }
 }
+
+import cloudinary
+
+cloudinary.config(
+    cloud_name="drbd9x4ha",
+    api_key="658133798159878",
+    api_secret="EkgTKKhQv8MS0QwXhsQUTzbMigc"
+)
 
 # Password validation
 # https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
