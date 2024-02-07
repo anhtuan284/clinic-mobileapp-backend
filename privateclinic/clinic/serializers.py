@@ -3,6 +3,7 @@ from rest_framework import serializers
 
 
 class UserSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email', 'username', 'password', 'avatar']
@@ -17,11 +18,10 @@ class UserSerializer(serializers.ModelSerializer):
         u = User(**data)
         u.set_password(u.password)
         u.save()
-
         return u
 
 
-class PatientSerializer(serializers.ModelSerializer):
+class BaseSerialize(serializers.ModelSerializer):
     image = serializers.SerializerMethodField(source='avatar')
 
     def get_image(self, patient):
@@ -32,18 +32,21 @@ class PatientSerializer(serializers.ModelSerializer):
 
             return 'https://res.cloudinary.com/drbd9x4ha/%s' % patient.avatar
 
+
+class PatientSerializer(BaseSerialize):
+
     class Meta:
         model = Patient
         fields = '__all__'
 
 
-class DoctorSerializer(serializers.ModelSerializer):
+class DoctorSerializer(BaseSerialize):
     class Meta:
         model = Doctor
         fields = '__all__'
 
 
-class NurseSerializer(serializers.ModelSerializer):
+class NurseSerializer(BaseSerialize):
     class Meta:
         model = Nurse
         fields = '__all__'

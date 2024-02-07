@@ -24,9 +24,9 @@ schema_view = get_schema_view(
     openapi.Info(
         title="Course API",
         default_version='v1',
-        description="APIs for CourseApp",
-        contact=openapi.Contact(email="thanh.dh@ou.edu.vn"),
-        license=openapi.License(name="Dương Hữu Thành@2021"),
+        description="APIs for ClinicApp",
+        contact=openapi.Contact(email="2151010421tuan@ou.edu.vn"),
+        license=openapi.License(name="Trương Bùi Anh Tuấn @2024"),
     ),
     public=True,
     permission_classes=(permissions.AllowAny,),
@@ -45,5 +45,6 @@ urlpatterns = [
             name='schema-swagger-ui'),
     re_path(r'^redoc/$',
             schema_view.with_ui('redoc', cache_timeout=0),
-            name='schema-redoc')
+            name='schema-redoc'),
+    path("__debug__/", include("debug_toolbar.urls")),
 ]

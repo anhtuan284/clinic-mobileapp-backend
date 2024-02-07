@@ -4,19 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="eb7c7064-2e56-468f-8cf9-c03481a8b4a7" name="Changes" comment="init project + connect DB">
-      <change afterPath="$PROJECT_DIR$/.idea/dictionaries/Peter.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/privateclinic/clinic/paginator.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/privateclinic/clinic/serializers.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/privateclinic/clinic/templates/admin/stats.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/privateclinic/data.json" afterDir="false" />
+    <list default="true" id="eb7c7064-2e56-468f-8cf9-c03481a8b4a7" name="Changes" comment="models V1">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/privateclinic/clinic/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/privateclinic/clinic/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/privateclinic/clinic/migrations/0001_initial.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/privateclinic/clinic/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/privateclinic/clinic/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/privateclinic/clinic/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/privateclinic/clinic/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/privateclinic/clinic/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/privateclinic/clinic/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/privateclinic/clinic/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/privateclinic/clinic/serializers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/privateclinic/clinic/tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/privateclinic/clinic/tests.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/privateclinic/data.json" beforeDir="false" afterPath="$PROJECT_DIR$/privateclinic/data.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/privateclinic/privateclinic/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/privateclinic/privateclinic/settings.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/privateclinic/privateclinic/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/privateclinic/privateclinic/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,7 +44,7 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.project.grazie&quot;
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
 }</component>
   <component name="RecentsManager">
@@ -71,11 +68,19 @@
       <option name="project" value="LOCAL" />
       <updated>1703734283786</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="models V1">
+      <created>1703865197467</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1703865197467</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="init project + connect DB" />
-    <option name="LAST_COMMIT_MESSAGE" value="init project + connect DB" />
+    <MESSAGE value="models V1" />
+    <option name="LAST_COMMIT_MESSAGE" value="models V1" />
   </component>
 </project>
