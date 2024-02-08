@@ -22,7 +22,7 @@ class User(AbstractUser):
 
 
 class UserInfo(models.Model):
-    user = models.OneToOneField(User, null=True, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, null=True, blank=True, on_delete=models.SET_NULL)
     SEX = (
         ('Male', 'Male'),
         ('Female', 'Female'),
@@ -68,12 +68,11 @@ class Medicine(models.Model):
 class Appointment(models.Model):
     patient = models.ForeignKey(User, on_delete=models.CASCADE)
     doctor = models.ForeignKey(Doctor, related_name="appointments", on_delete=models.CASCADE)
-    nurse = models.ForeignKey(Nurse, related_name="appointments", on_delete=models.CASCADE)
     scheduled_time = models.DateTimeField()
     confirmed = models.BooleanField(default=False)
-
+    
     def __str__(self):
-        return str(self.doctor) + " | " + str(self.nurse)
+        return str(self.doctor)
 
 
 class Prescription(models.Model):

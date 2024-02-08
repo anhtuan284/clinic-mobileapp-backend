@@ -29,6 +29,8 @@ ALLOWED_HOSTS = []
 
 AUTH_USER_MODEL = "clinic.User"
 
+CORS_ALLOW_ALL_ORIGINS = True
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -43,19 +45,21 @@ INSTALLED_APPS = [
     'drf_yasg',
     'cloudinary',
     'debug_toolbar',
-    # 'oauth2_provider'
+    'oauth2_provider',
+    'corsheaders',
 ]
 
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS':
         'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 2
-    # 'DEFAULT_AUTHENTICATION_CLASSES': (
-    #     'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
-    # )
+    'PAGE_SIZE': 2,
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'oauth2_provider.contrib.rest_framework.OAuth2Authentication',
+    )
 }
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -156,3 +160,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
+
+# v3ggBOAhVNEFaDrCD2JrATqnN1aRD4x0trk40yai
+# wpJBAllunRw8UbRSElxSueZDKUGTW2NK751FAaALkBXNPQqj4qicrvnydgv5zmaAwMW7i8PiQxbJPqvNRX16EnOmwHDdg0rHGGjsPn60Daggl6icoIL5tVtglA7YiiZN

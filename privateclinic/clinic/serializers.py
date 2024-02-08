@@ -3,6 +3,7 @@ from rest_framework import serializers
 
 
 class UserSerializer(serializers.ModelSerializer):
+    avatar = serializers.SerializerMethodField(source="avatar")
 
     class Meta:
         model = User
@@ -12,6 +13,14 @@ class UserSerializer(serializers.ModelSerializer):
                 'write_only': True
             }
         }
+
+    def get_avatar(self, user):
+        if user.avatar:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(user.avatar)
+            return user.avatar.url
+        return None
 
     def create(self, validated_data):
         data = validated_data.copy()
@@ -33,20 +42,20 @@ class BaseSerialize(serializers.ModelSerializer):
             return 'https://res.cloudinary.com/drbd9x4ha/%s' % patient.avatar
 
 
-class PatientSerializer(BaseSerialize):
+class PatientSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Patient
         fields = '__all__'
 
 
-class DoctorSerializer(BaseSerialize):
+class DoctorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Doctor
         fields = '__all__'
 
 
-class NurseSerializer(BaseSerialize):
+class NurseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Nurse
         fields = '__all__'
