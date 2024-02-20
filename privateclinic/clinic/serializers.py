@@ -64,4 +64,4 @@ class NurseSerializer(serializers.ModelSerializer):
 class MedicineSerializer(serializers.ModelSerializer):
     class Meta:
         model = Medicine
-        fields = '__all__'
+        fields = ['id', 'name', 'price']

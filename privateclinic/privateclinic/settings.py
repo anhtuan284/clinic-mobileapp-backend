@@ -161,5 +161,15 @@ INTERNAL_IPS = [
     "127.0.0.1",
 ]
 
-# v3ggBOAhVNEFaDrCD2JrATqnN1aRD4x0trk40yai
-# wpJBAllunRw8UbRSElxSueZDKUGTW2NK751FAaALkBXNPQqj4qicrvnydgv5zmaAwMW7i8PiQxbJPqvNRX16EnOmwHDdg0rHGGjsPn60Daggl6icoIL5tVtglA7YiiZN
+# tdBEzfTaLmHuVhjYG1GrufOpe3wU5e3tzpZT1UZl
+# OrxshyKZIFWR366hHu6BdwCmwBSCCqzIGNVpoPagT3miVab2yw3MpX2kZaTWEDqbKcLZUa8ydBES1jTAK0SXx9yyekIxU1yOz39vshuY5E0n8hRVj4G2BBUHBRHVpYGZ
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'peteralwaysloveu@gmail.com'
+EMAIL_HOST_PASSWORD = "uvbc jfpm udxt apwv"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = 'default from email'
+

@@ -4,11 +4,10 @@ from rest_framework import routers
 
 routers = routers.DefaultRouter()
 routers.register('patient', views.PatientViewSet, basename='patient')
+routers.register('medicine', views.MedicineViewSet, basename='medicine')
 routers.register('user', views.UserViewSet, basename='user')
+routers.register('appointment', views.AppointmentViewSet, basename='appointment')
 
 urlpatterns = [
-    # path('', views.index, name="index"),
     path('', include(routers.urls)),
-
-    # path('patient/<int:patient_id>', views.details)
 ]

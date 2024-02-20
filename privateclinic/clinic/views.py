@@ -1,4 +1,5 @@
 from django.contrib.auth import authenticate, logout, login
+from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.shortcuts import render
 from .models import Patient, Doctor, Nurse, User, Medicine, Prescription, Appointment
@@ -11,16 +12,9 @@ from rest_framework.response import Response
 from django.contrib.auth.models import Group
 from django.contrib.auth.mixins import PermissionRequiredMixin
 import cloudinary.uploader
+from functools import partial
 
-
-class PatientViewSet(viewsets.ModelViewSet):
-    queryset = Patient.objects.all()
-    serializer_class = PatientSerializer
-    permission_classes = [permissions.AllowAny]
-
-
-def index(request):
-    return HttpResponse("This is Private Clinic")
+MAX_PATIENT_PER_DAY = 3
 
 
 class UserViewSet(viewsets.ViewSet, generics.CreateAPIView, PermissionRequiredMixin):
@@ -28,15 +22,11 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView, PermissionRequiredMi
     serializer_class = serializers.UserSerializer
     parser_classes = [parsers.MultiPartParser]
 
-    # permission_required = ("blog.view_post", "blog.add_post")
-
     def get_permissions(self):
-        # if self.request.method == "GET":
-        #     return [permissions.IsAdminUser(), ]
-        if self.action.__eq__('update_user'):
+        if self.action in ['profile', 'update_user']:
             return [perms.AccountOwnerAuthenticated()]
-        elif self.action.__eq__('profile'):
-            return [perms.AccountOwnerAuthenticated()]
+        elif self.action in ['register_user']:
+            return [permissions.AllowAny()]
         return [permissions.IsAuthenticated()]
 
     @action(methods=['post'], url_path='register', detail=False)
@@ -44,7 +34,6 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView, PermissionRequiredMi
         try:
             data = request.data
             avatar = request.data.get("avatar")
-            # upload file
             new_avatar = cloudinary.uploader.upload(avatar)
             new_user = User.objects.create_user(
                 first_name=data.get("first_name"),
@@ -58,7 +47,7 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView, PermissionRequiredMi
             return Response(data=serializers.UserSerializer(new_user, context={'request': request}).data,
                             status=status.HTTP_201_CREATED)
         except Exception as e:
-            print(f"Error: {str(e)}")
+            return Response(dict(error=e.__str__()), status=status.HTTP_403_FORBIDDEN)
 
     @action(methods=['patch'], url_path='update', url_name='update', detail=True)
     def update_user(self, request, pk):
@@ -84,4 +73,39 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView, PermissionRequiredMi
             return Response(data=detail_user, status=status.HTTP_200_OK)
         except Exception as e:
             return Response(dict(error=e.__str__()), status=status.HTTP_403_FORBIDDEN)
+
+
+class AppointmentViewSet(viewsets.ViewSet):
+    @action(methods=['GET'], detail=False, name="Confirm this appointment", url_name='confirm', url_path='confirm')
+    def confirm(self, request):
+        t = send_mail(
+            subject="Appointment Comfirmation",
+            message=f'''
+           OKOK Em huy 
+        ''',
+            from_email='peteralwaysloveu@gmail.com',
+            recipient_list=['2151013029huy@ou.edu.vn']
+        )
+        return Response({'success': 'OK'}, status=status.HTTP_200_OK)
+
+
+class MedicineViewSet(viewsets.ViewSet, generics.ListAPIView, PermissionRequiredMixin):
+    queryset = Medicine.objects.filter(active=True).all()
+    serializer_class = serializers.MedicineSerializer
+    permission_required = 'clinic.view_medicine'
+    permission_classes = [partial(perms.IsInGroup, allowed_groups=['DOCTOR'])]
+    # permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        q = self.queryset
+        kw = self.request.query_params.get('kw')
+        if kw:
+            q = q.filter(name__icontains=kw)
+        return q
+
+
+class PatientViewSet(viewsets.ViewSet, generics.RetrieveAPIView):
+    queryset = Patient.objects.all()
+    serializer_class = PatientSerializer
+    permission_classes = [permissions.AllowAny]
 
