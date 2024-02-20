@@ -1,4 +1,4 @@
-from .models import Patient, Doctor, Nurse, Prescription, Medicine, User
+from .models import Doctor, Nurse, Medicine, Prescription, Patient, Appointment, User, Receipt, Service, Department, DepartmentSchedule
 from rest_framework import serializers
 
 
@@ -50,18 +50,33 @@ class PatientSerializer(serializers.ModelSerializer):
 
 
 class DoctorSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Doctor
         fields = '__all__'
 
 
 class NurseSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Nurse
         fields = '__all__'
 
 
-class MedicineSerializer(serializers.ModelSerializer):
+class MedicineListSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Medicine
-        fields = ['id', 'name', 'price']
+        fields = ['id', 'name', 'weight']
+
+
+class MedicineDetailSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Medicine
+        fields = '__all__'
+
+
+class PrescriptionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Prescription
+        fields = ['id', 'symptoms', 'diagnosis', 'patient', 'doctor', 'medicines', 'services']

@@ -2,7 +2,7 @@ from django.contrib.auth import authenticate, logout, login
 from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.shortcuts import render
-from .models import Patient, Doctor, Nurse, User, Medicine, Prescription, Appointment
+from .models import Doctor, Nurse, Medicine, Prescription, Patient, Appointment, User, Receipt, Service, Department, DepartmentSchedule, PrescriptionMedicine
 from rest_framework import viewsets, permissions, generics, parsers, status
 from .serializers import PatientSerializer
 from . import serializers, paginator, perms
@@ -91,10 +91,13 @@ class AppointmentViewSet(viewsets.ViewSet):
 
 class MedicineViewSet(viewsets.ViewSet, generics.ListAPIView, PermissionRequiredMixin):
     queryset = Medicine.objects.filter(active=True).all()
-    serializer_class = serializers.MedicineSerializer
-    permission_required = 'clinic.view_medicine'
+    serializer_class = serializers.MedicineListSerializer
     permission_classes = [partial(perms.IsInGroup, allowed_groups=['DOCTOR'])]
-    # permission_classes = [permissions.AllowAny]
+
+    # def get_permissions(self):
+    #     if self.action in ['hello']:
+    #         return [permissions.AllowAny()]
+    #     return [perms.IsInGroup(allowed_groups=['DOCTOR'])]
 
     def get_queryset(self):
         q = self.queryset
@@ -102,6 +105,30 @@ class MedicineViewSet(viewsets.ViewSet, generics.ListAPIView, PermissionRequired
         if kw:
             q = q.filter(name__icontains=kw)
         return q
+
+    @action(methods=['get'], detail=False, url_path="hello")
+    def hello(self, request):
+        return Response({'ms': 'Hello'}, status=status.HTTP_200_OK)
+
+
+class PrescriptionViewSet(viewsets.ViewSet, generics.CreateAPIView):
+    queryset = Prescription.objects.all()
+    permission_classes = [partial(perms.IsInGroup, allowed_groups=['DOCTOR'])]
+    serializer_class = serializers.PrescriptionSerializer
+
+    @action(methods=['patch'], detail=True, url_path="add-medicine")
+    def add_medicine(self, request, pk=None):
+        try:
+            prescription = self.get_object()
+            medicine_id = request.data["medicine_id"]
+            found_medicine = Medicine.objects.get(pk=medicine_id)
+            pres, created = PrescriptionMedicine.objects.get_or_create(prescription=prescription, medicine=found_medicine)
+            if created:
+                return Response({"message": "Add medicine successfully"}, status=status.HTTP_204_NO_CONTENT)
+            else:
+                return Response({"error": "This medicine has been added"}, status=status.HTTP_304_NOT_MODIFIED)
+        except Exception as e:
+            return Response(dict(error=e.__str__()), status=status.HTTP_400_BAD_REQUEST)
 
 
 class PatientViewSet(viewsets.ViewSet, generics.RetrieveAPIView):

@@ -43,6 +43,9 @@ class Patient(models.Model):
     weight = models.IntegerField(null=True)
     allergies = models.CharField(max_length=200, null=True)
 
+    def __str__(self):
+        return "Pt. " + self.user_info.first_name + " " + self.user_info.last_name
+
 
 class Doctor(models.Model):
     user_info = models.OneToOneField(User, related_name="doctor", null=False, primary_key=True, on_delete=models.CASCADE)
@@ -56,10 +59,16 @@ class Doctor(models.Model):
     salary = models.FloatField()
     specialty = models.CharField(max_length=200, choices=Specialty, default=Specialty.GENERAL_PRACTICE)
 
+    def __str__(self):
+        return "Dr. " + self.user_info.first_name + " " + self.user_info.last_name
+
 
 class Nurse(models.Model):
     user_info = models.OneToOneField(User, related_name="nurse", null=False, primary_key=True, on_delete=models.CASCADE)
     salary = models.FloatField(null=True)
+
+    def __str__(self):
+        return "Nr. " + self.user_info.first_name + " " + self.user_info.last_name
 
 
 class BaseModel(models.Model):
@@ -87,6 +96,9 @@ class DepartmentSchedule(BaseModel):
     class Meta:
         unique_together = ('date', 'department')
 
+    def __str__(self):
+        return str(self.date) + ' | ' + str(self.department)
+
 
 class Medicine(BaseModel):
     class MedicineUnit(models.TextChoices):
@@ -108,12 +120,15 @@ class Medicine(BaseModel):
     # Shell: m.prescription_set.all()
 
     def __str__(self):
-        return self.name
+        return str(self.name) + " [" + str(self.weight) + "mg]"
 
 
 class Service(BaseModel):
     name = models.CharField(max_length=25, null=False)
     price = models.IntegerField(null=False)
+
+    def __str__(self):
+        return self.name
 
 
 class Appointment(BaseModel):
@@ -158,7 +173,7 @@ class Prescription(BaseModel):
     services = models.ManyToManyField(Service)
 
     def __str__(self):
-        return "Toa thuốc " + str(self.patient.user_info.name)
+        return self.patient.user_info.first_name + " " + self.patient.user_info.last_name + " " + str(self.created_date)
 
 
 class Receipt(models.Model):
@@ -167,6 +182,9 @@ class Receipt(models.Model):
     total = models.IntegerField()
     created_date = models.DateField(default=timezone.now())
     paid = models.BooleanField(null=False, default=False)
+
+    def __str__(self):
+        return self.prescription.__str__()
 
 
 class Notification(models.Model):
