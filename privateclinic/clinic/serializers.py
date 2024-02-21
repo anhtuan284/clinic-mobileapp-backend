@@ -1,4 +1,5 @@
-from .models import Doctor, Nurse, Medicine, Prescription, Patient, Appointment, User, Receipt, Service, Department, DepartmentSchedule
+from .models import Doctor, Nurse, Medicine, Prescription, Patient, Appointment, User, Receipt, Service, Department, \
+    DepartmentSchedule, PrescriptionMedicine
 from rest_framework import serializers
 
 
@@ -47,6 +48,7 @@ class PatientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Patient
         fields = '__all__'
+        select_related = ['user_info']
 
 
 class DoctorSerializer(serializers.ModelSerializer):
@@ -54,12 +56,22 @@ class DoctorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Doctor
         fields = '__all__'
+        select_related = ['user_info']
 
 
 class NurseSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Nurse
+        fields = '__all__'
+        select_related = ['user_info']
+
+
+
+class ServiceSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Service
         fields = '__all__'
 
 
@@ -71,12 +83,42 @@ class MedicineListSerializer(serializers.ModelSerializer):
 
 
 class MedicineDetailSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Medicine
         fields = '__all__'
 
 
 class PrescriptionSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Prescription
         fields = ['id', 'symptoms', 'diagnosis', 'patient', 'doctor', 'medicines', 'services']
+        select_related = ['patient', 'doctor']
+        prefetch_related = ['medicines', 'services']
+
+
+class PrescriptionMedicineSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = PrescriptionMedicine
+        fields = ['id', 'prescription', 'medicine', 'quantity', 'dosage']
+
+
+class PrescriptionDetailSerializer(serializers.ModelSerializer):
+    services = ServiceSerializer(many=True)
+    dosages = PrescriptionMedicineSerializer(many=True)
+
+    class Meta:
+        model = Prescription
+        fields = ['id', 'symptoms', 'diagnosis', 'patient', 'doctor', 'services', 'dosages']
+        select_related = ['patient', 'doctor']
+        prefetch_related = ['medicines', 'services']
+
+
+class ReceiptSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Receipt
+        fields = '__all__'
+        select_related = ['nurse', 'prescription']

@@ -10,6 +10,7 @@ routers.register('medicine', views.MedicineViewSet, basename='medicine')
 routers.register('user', views.UserViewSet, basename='user')
 routers.register('appointment', views.AppointmentViewSet, basename='appointment')
 routers.register('prescription', views.PrescriptionViewSet, basename='prescription')
+routers.register('receipt', views.ReceiptViewSet, basename='receipt')
 
 urlpatterns = [
     path('', include(routers.urls)),

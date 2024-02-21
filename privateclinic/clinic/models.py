@@ -138,7 +138,7 @@ class Appointment(BaseModel):
         CANCELLED = 'cancelled', 'Cancelled'
 
     patient = models.ForeignKey(Patient, related_name="appointments", on_delete=models.CASCADE)
-    scheduled_date = models.DateField(default=timezone.now(), null=False)
+    scheduled_date = models.DateField(auto_now_add=True, null=False)
     status = models.CharField(max_length=20, choices=StatusChoices, default=StatusChoices.PENDING)
     order_number = models.PositiveIntegerField(default=None, null=False)
 
@@ -154,7 +154,7 @@ class Appointment(BaseModel):
 
 
 class PrescriptionMedicine(models.Model):
-    prescription = models.ForeignKey('Prescription', on_delete=models.CASCADE)
+    prescription = models.ForeignKey('Prescription', related_name='dosages', on_delete=models.CASCADE)
     medicine = models.ForeignKey('Medicine', on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
     dosage = models.CharField(max_length=50)
@@ -164,8 +164,8 @@ class PrescriptionMedicine(models.Model):
 
 
 class Prescription(BaseModel):
-    patient = models.ForeignKey(Patient, related_name="health_records", null=False, on_delete=models.CASCADE)
-    doctor = models.ForeignKey(Doctor, related_name="health_records", null=False, on_delete=models.CASCADE)
+    patient = models.ForeignKey(Patient, related_name="prescription", null=False, on_delete=models.CASCADE)
+    doctor = models.ForeignKey(Doctor, related_name="prescription", null=False, on_delete=models.CASCADE)
     symptoms = models.TextField(max_length=500)
     diagnosis = models.TextField(max_length=500)
     pay_status = models.BooleanField(default=False)
@@ -180,7 +180,7 @@ class Receipt(models.Model):
     nurse = models.ForeignKey(Nurse, related_name='receipt_confirmed', on_delete=models.SET_NULL, null=True)
     prescription = models.OneToOneField(Prescription, related_name='receipt', primary_key=True, on_delete=models.CASCADE)
     total = models.IntegerField()
-    created_date = models.DateField(default=timezone.now())
+    created_date = models.DateField(auto_now_add=True)
     paid = models.BooleanField(null=False, default=False)
 
     def __str__(self):

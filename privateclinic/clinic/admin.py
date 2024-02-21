@@ -1,6 +1,7 @@
 import cloudinary
 from django.contrib import admin
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import Group, Permission
 from django.shortcuts import render
 from django.template.response import TemplateResponse
 from django.urls import path
@@ -86,4 +87,7 @@ admin_site.register(Service)
 admin_site.register(DepartmentSchedule, DepartmentScheduleAdmin)
 admin_site.register(Receipt)
 admin_site.register(User, UserAdmin)
+admin_site.register(Group)
+admin_site.register(Permission)
+
 
