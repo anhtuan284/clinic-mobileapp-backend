@@ -1,9 +1,39 @@
 import cloudinary
 from django.contrib import admin
 from django.contrib.auth.hashers import make_password
+from django.shortcuts import render
+from django.template.response import TemplateResponse
+from django.urls import path
 from django.utils.safestring import mark_safe
+from django.contrib.admin.views.decorators import staff_member_required
 from .models import Doctor, Nurse, Medicine, Prescription, Patient, Appointment, User, Receipt, Service, Department, DepartmentSchedule
+from .dao import *
 # Register your models here.
+
+
+class ClinicAdminSite(admin.AdminSite):
+    site_header = 'Hệ thống quản trị phòng mạch tư'
+
+    def get_urls(self):
+        return [
+            path('clinic-stats/', self.stats_view)
+        ] + super().get_urls()
+
+    def stats_view(self, request):
+        period = request.GET.get('period', 'month')
+        stats = count_patients_by_period(period=period)
+        revenue_stats = calculate_revenue_by_period(period=period)
+
+        context = {
+            'stats': stats,
+            'revenue_stats': revenue_stats,
+            'period': period
+        }
+
+        return render(request, 'admin/stats.html', context)
+
+
+admin_site = ClinicAdminSite(name='myadmin')
 
 
 class PatientAdmin(admin.ModelAdmin):
@@ -45,15 +75,15 @@ class UserAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
 
-admin.site.register(Doctor)
-admin.site.register(Nurse)
-admin.site.register(Medicine, MedicineAdmin)
-admin.site.register(Prescription, PrescriptionAdmin)
-admin.site.register(Patient, PatientAdmin)
-admin.site.register(Appointment)
-admin.site.register(Department)
-admin.site.register(Service)
-admin.site.register(DepartmentSchedule, DepartmentScheduleAdmin)
-admin.site.register(Receipt)
-admin.site.register(User, UserAdmin)
+admin_site.register(Doctor)
+admin_site.register(Nurse)
+admin_site.register(Medicine, MedicineAdmin)
+admin_site.register(Prescription, PrescriptionAdmin)
+admin_site.register(Patient, PatientAdmin)
+admin_site.register(Appointment)
+admin_site.register(Department)
+admin_site.register(Service)
+admin_site.register(DepartmentSchedule, DepartmentScheduleAdmin)
+admin_site.register(Receipt)
+admin_site.register(User, UserAdmin)
 

@@ -150,7 +150,7 @@ class Appointment(BaseModel):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return "Appointment for " + self.patient.name
+        return "Appointment for " + str(self.patient)
 
 
 class PrescriptionMedicine(models.Model):

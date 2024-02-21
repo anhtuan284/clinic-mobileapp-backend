@@ -1,52 +1,179 @@
 {% extends 'admin/base_site.html' %}
 
 {% block content %}
-<h1>THỐNG KÊ BÁO CÁO</h1>
-
-<ul>
-    {% for c in stats %}
-    <li><strong>{{ c.name }}</strong>: <span style="color: red;">{{ c.count }}</span></li>
-    {% endfor %}
-</ul>
-
-<canvas id="myChart"></canvas>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-window.onload = () => {
-    const ctx = document.getElementById('myChart');
-
-    let data = [];
-    let labels = [];
-    {% for c in stats %}
-    data.push({{ c.count }})
-    labels.push('{{ c.name }}')
-    {% endfor %}
-
-  new Chart(ctx, {
-    type: 'pie',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: '# Quatity',
-        data: data,
-        borderWidth: 1,
-        backgroundColor: [
-              'rgb(255, 99, 132)',
-              'rgb(54, 162, 235)',
-              'rgb(255, 205, 86)'
-            ],
-      }]
-    },
-    options: {
-      scales: {
-        y: {
-          beginAtZero: true
+    <style>
+        .chart-container {
+            max-width: 600px;
+            max-height: 400px;
         }
-      }
-    }
-  });
-}
 
-</script>
+        canvas {
+            width: 100% !important;
+            height: auto !important;
+        }
+    </style>
+    <h1>THỐNG KÊ SỐ LƯỢNG BỆNH NHÂN ĐẾN KHÁM VÀ DOANH THU</h1>
+
+    <form method="GET">
+        <label for="period">Chọn khoảng thời gian:</label>
+        <select id="period" name="period" onchange="this.form.submit()">
+            <option value="month" {% if period == 'month' %}selected{% endif %}>Tháng</option>
+            <option value="quarter" {% if period == 'quarter' %}selected{% endif %}>Quý</option>
+            <option value="year" {% if period == 'year' %}selected{% endif %}>Năm</option>
+        </select>
+    </form>
+
+    <h2>THỐNG KÊ SỐ LƯỢNG BỆNH NHÂN ĐẾN KHÁM</h2>
+
+    <ul>
+        {% for stat in stats %}
+            <li>
+                <strong>
+                    {% if period == 'month' %}
+                         {{ stat.month|date:"F, Y" }}
+                    {% elif period == 'quarter' %}
+                         {% if stat.quarter %}{{ stat.quarter|date:"F, Y" }}{% endif %}
+                    {% elif period == 'year' %}
+                         {% if stat.year %}{{ stat.year|date:"Y" }}{% endif %}
+                    {% endif %}
+                :</strong> {{ stat.patient_count }} bệnh nhân
+            </li>
+        {% endfor %}
+    </ul>
+
+    <div class="chart-container">
+        <canvas id="patientChart"></canvas>
+    </div>
+
+    <h2>THỐNG KÊ DOANH THU</h2>
+
+    <ul>
+        {% for stat in revenue_stats %}
+            <li>
+                <strong>
+                    {% if period == 'month' %}
+                         {{ stat.month|date:"F, Y" }}
+                    {% elif period == 'quarter' %}
+                         {% if stat.quarter %}{{ stat.quarter|date:"F, Y" }}{% endif %}
+                    {% elif period == 'year' %}
+                         {% if stat.year %}{{ stat.year|date:"Y" }}{% endif %}
+                    {% endif %}
+                :</strong> {{ stat.total_revenue }} USD
+            </li>
+        {% endfor %}
+    </ul>
+
+    <div class="chart-container" >
+        <canvas id="revenueChart"></canvas>
+    </div>
+
+
+    <div class="chart-container">
+        <canvas id="revenueLineChart"></canvas>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        let patientLabels = [];
+        let patientValues = [];
+
+        {% for stat in stats %}
+            {% if period == 'month' %}
+                patientLabels.push('{{ stat.month|date:"F, Y" }}')
+                patientValues.push({{ stat.patient_count }});
+            {% elif period == 'quarter' %}
+                patientLabels.push('{{ stat.quarter|date:"F, Y" }}')
+                patientValues.push({{ stat.patient_count }})
+            {% elif period == 'year' %}
+                patientLabels.push('{{ stat.year|date:"Y" }}')
+                patientValues.push({{ stat.patient_count }})
+            {% endif %}
+        {% endfor %}
+
+        window.onload = () => {
+            const patientCtx = document.getElementById('patientChart').getContext('2d');
+
+            new Chart(patientCtx, {
+                type: 'bar',
+                data: {
+                    labels: patientLabels,
+                    datasets: [{
+                        label: 'Số lượng bệnh nhân',
+                        data: patientValues,
+                        borderWidth: 1,
+                        backgroundColor: 'rgb(255, 99, 132)'
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            let revenueLabels = [];
+            let revenueValues = [];
+
+            {% for stat in revenue_stats %}
+                {% if period == 'month' %}
+                    revenueLabels.push('{{ stat.month|date:"F, Y" }}')
+                    revenueValues.push({{ stat.total_revenue }});
+                {% elif period == 'quarter' %}
+                    revenueLabels.push('{{ stat.quarter|date:"F, Y" }}')
+                    revenueValues.push({{ stat.total_revenue }})
+                {% elif period == 'year' %}
+                    revenueLabels.push('{{ stat.year|date:"Y" }}')
+                    revenueValues.push({{ stat.total_revenue }})
+                {% endif %}
+            {% endfor %}
+
+            const revenueCtx= document.getElementById('revenueChart').getContext('2d');
+
+            new Chart(revenueCtx, {
+                type: 'bar',
+                data: {
+                    labels: revenueLabels,
+                    datasets: [{
+                        label: 'Doanh thu (USD)',
+                        data: revenueValues,
+                        borderWidth: 1,
+                        backgroundColor: 'rgb(54, 162, 235)'
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+
+            const revenueYearCtx = document.getElementById('revenueLineChart').getContext('2d');
+
+            new Chart(revenueYearCtx, {
+                type: 'line',
+                data: {
+                    labels: revenueLabels,
+                    datasets: [{
+                        label: 'Doanh thu qua các thời điểm (USD)',
+                        data: revenueValues,
+                        borderWidth: 1,
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)'
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+    </script>
 {% endblock %}
