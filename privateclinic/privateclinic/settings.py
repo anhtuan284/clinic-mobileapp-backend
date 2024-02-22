@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-9e2!vrdhz&@o#y=cmlgk%e@h7=4_nuhyqo2e0hr*fn$y&qg)j5
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 AUTH_USER_MODEL = "clinic.User"
 
@@ -68,6 +68,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "debug_toolbar.middleware.DebugToolbarMiddleware",
+    "clinic.middleware.AuthMiddleware",
 ]
 
 ROOT_URLCONF = "privateclinic.urls"
@@ -161,9 +162,6 @@ INTERNAL_IPS = [
     "127.0.0.1",
 ]
 
-# tdBEzfTaLmHuVhjYG1GrufOpe3wU5e3tzpZT1UZl
-# OrxshyKZIFWR366hHu6BdwCmwBSCCqzIGNVpoPagT3miVab2yw3MpX2kZaTWEDqbKcLZUa8ydBES1jTAK0SXx9yyekIxU1yOz39vshuY5E0n8hRVj4G2BBUHBRHVpYGZ
-
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
@@ -173,3 +171,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = 'default from email'
 
+# tra ve json
+OAUTH2_PROVIDER = {
+    'OAUTH2_BACKEND_CLASS': 'oauth2_provider.oauth2_backends.JSONOAuthLibCore'
+}

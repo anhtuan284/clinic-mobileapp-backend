@@ -6,6 +6,7 @@ from .admin import admin_site
 
 routers = routers.DefaultRouter()
 routers.register('patient', views.PatientViewSet, basename='patient')
+routers.register('doctor', views.DoctorViewSet, basename='doctor')
 routers.register('medicine', views.MedicineViewSet, basename='medicine')
 routers.register('user', views.UserViewSet, basename='user')
 routers.register('appointment', views.AppointmentViewSet, basename='appointment')

@@ -31,6 +31,10 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView, PermissionRequiredMi
             return [permissions.AllowAny()]
         return [permissions.IsAuthenticated()]
 
+    @action(methods=['get'], url_path='current-user', url_name='current-user', detail=False)
+    def current_user(self, request):
+        return Response(serializers.UserSerializer(request.user).data)
+
     @action(methods=['post'], url_path='register', detail=False)
     def register_user(self, request):
         try:
@@ -188,6 +192,12 @@ class ReceiptViewSet(viewsets.ViewSet, generics.RetrieveAPIView):
             return Response({'message': 'Receipt paid successfully'}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response(dict(error=e.__str__()), status=status.HTTP_400_BAD_REQUEST)
+
+
+class DoctorViewSet(viewsets.ViewSet, generics.RetrieveAPIView, generics.ListAPIView):
+    serializer_class = serializers.DoctorSerializer
+    permission_classes = [permissions.AllowAny]
+    queryset = Doctor.objects.all()
 
 
 class PatientViewSet(viewsets.ViewSet, generics.RetrieveAPIView):

@@ -67,7 +67,6 @@ class NurseSerializer(serializers.ModelSerializer):
         select_related = ['user_info']
 
 
-
 class ServiceSerializer(serializers.ModelSerializer):
 
     class Meta:

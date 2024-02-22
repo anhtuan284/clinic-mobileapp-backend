@@ -8,3 +8,5 @@ tzdata==2023.3
 
 cloudinary~=1.37.0
 djangorestframework~=3.14.0
+django-oauth-toolkit~=2.3.0
+requests~=2.31.0
