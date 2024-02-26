@@ -19,6 +19,7 @@ routers.register('service', views.ServiceViewSet, basename='service')
 urlpatterns = [
     path('', include(routers.urls)),
     path('admin/', admin_site.urls),
+    path('change-password/', views.ChangePasswordView.as_view(), name='change-password'),
     path('process_payment/', process_payment, name='process_payment'),  # Thêm path cho process_payment
 
 ]

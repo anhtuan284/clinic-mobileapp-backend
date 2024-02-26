@@ -1,11 +1,15 @@
+import datetime
 from datetime import date
 
 from django.contrib.auth import authenticate, logout, login
+from django.contrib.auth.hashers import make_password
 from django.contrib.sites import requests
 from django.core.mail import send_mail
 from django.db.models import Sum, ExpressionWrapper, F, DecimalField, Max, Q
 from django.http import HttpResponse
 from django.shortcuts import render
+from rest_framework.generics import UpdateAPIView
+
 from .models import Doctor, Nurse, Medicine, Prescription, Patient, Appointment, User, Receipt, Service, Department, \
     DepartmentSchedule, PrescriptionMedicine
 from rest_framework import viewsets, permissions, generics, parsers, status
@@ -26,7 +30,6 @@ MAX_PATIENT_PER_DAY = 100
 
 class UserViewSet(viewsets.ViewSet, generics.CreateAPIView, PermissionRequiredMixin):
     queryset = User.objects.filter(is_active=True).all()
-    serializer_class = serializers.UserSerializer
     parser_classes = [parsers.MultiPartParser]
 
     def get_permissions(self):
@@ -35,6 +38,11 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView, PermissionRequiredMi
         elif self.action in ['register_user']:
             return [permissions.AllowAny()]
         return [permissions.IsAuthenticated()]
+
+    def get_serializer_class(self):
+        if self.action in ['update_user']:
+            return serializers.UserUpdateSerializer
+        return serializers.UserSerializer
 
     @action(methods=['get'], url_path='current-user', url_name='current-user', detail=False)
     def current_user(self, request):
@@ -67,6 +75,9 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView, PermissionRequiredMi
         try:
             user_before = self.get_object()
             avatar_file = request.data.get("avatar")
+            passw = request.data.get("password")
+            if passw is not None:
+                return Response({'error': 'Can not change password'}, status=status.HTTP_400_BAD_REQUEST)
             for fields, value in request.data.items():
                 setattr(user_before, fields, value)
             if avatar_file:
@@ -76,7 +87,7 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView, PermissionRequiredMi
             return Response(data=serializers.UserSerializer(user_before, context={'request': request}).data,
                             status=status.HTTP_200_OK)
         except Exception as e:
-            return Response(dict(error=e.__str__()), status=status.HTTP_403_FORBIDDEN)
+            return Response(dict(error=e.__str__()), status=status.HTTP_400_BAD_REQUEST)
 
     @action(methods=['get'], url_path='profile', detail=True)
     def profile(self, request, pk):
@@ -88,11 +99,48 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView, PermissionRequiredMi
             return Response(dict(error=e.__str__()), status=status.HTTP_403_FORBIDDEN)
 
 
-# HUY's missing part
+class ChangePasswordView(generics.UpdateAPIView):
+    serializer_class = serializers.ChangePasswordSerializer
+    model = User
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self, queryset=None):
+        obj = self.request.user
+        return obj
+
+    def update(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        serializer = self.get_serializer(data=request.data)
+
+        if serializer.is_valid():
+            if not self.object.check_password(serializer.data.get("old_password")):
+                return Response({"old_password": ["Wrong password."]}, status=status.HTTP_400_BAD_REQUEST)
+            self.object.set_password(serializer.data.get("new_password"))
+            self.object.save()
+            response = {
+                'status': 'success',
+                'code': status.HTTP_200_OK,
+                'message': 'Password updated successfully',
+                'data': []
+            }
+            now = datetime.datetime.now()
+            subject = f'YOUR PASSWORD HAS BEEN CHANGED !!'
+            message = f"Dear ,\n\nYour password has been changed at {now}" \
+                      f".\n\nRegards,\nThe Private Clinic Team"
+            sender_email = 'peteralwaysloveu@gmail.com'
+            recipient_email = self.get_object().email
+            print(recipient_email)
+            send_mail(subject, message, sender_email, [recipient_email])
+
+            return Response(response)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
 class AppointmentViewSet(viewsets.ViewSet):
 
     def get_permissions(self):
-        if self.action in ['create_appointment']:
+        if self.action in ['create_appointment', 'get_user_appointment', 'user_cancel_appointment']:
             return [perms.IsInGroup(allowed_groups=['PATIENT'])]
         return [perms.IsInGroup(allowed_groups=['NURSE'])]
 
@@ -108,16 +156,19 @@ class AppointmentViewSet(viewsets.ViewSet):
             # neu ton tai xem shecu voi today đã qua chưa, nếu qua rồi thì mới cho tạo
             # my_appointment_count = request.user.patient.appointments.filter(Q(scheduled_date=request.data.get("scheduled_date")) & Q(status__in=['pending', 'approved'])).count()
             # print(my_appointment_count)
+            if appointment_count >= max_appointments_per_day:
+                return Response({'error': 'You are no longer able to create appointment today. Retry on tomorrow.'},
+                                status=status.HTTP_400_BAD_REQUEST)
+            count_pending_approved_appointments = Appointment.objects.filter(status__in=['approved', 'pending'],
+                                                                             patient=request.user.patient,
+                                                                             scheduled_date__range=[today,
+                                                                                                    request.data.get(
+                                                                                                        "scheduled_date")]).count()
 
-            count_pending_approved_appointments = Appointment.objects.filter(status__in=['approved'],scheduled_date__range=[today, request.data.get("scheduled_date")]).count()
-
-            user_appointments = request.user.patient.appointments.filter(status__in=['pending', 'approved'])
-            # Kiểm tra xem các cuộc hẹn đã được đặt lịch trước hoặc vào ngày hiện tại chưa
-            for appointment in user_appointments:
-                if appointment.scheduled_date < today or appointment.status.__eq__('pending')  :
-                    # Cuộc hẹn đã được đặt lịch trước hoặc vào ngày hiện tại
-                    return Response({'error': 'You are no longer able to create appointment today. Retry on tomorrow.'},
-                                                             status=status.HTTP_400_BAD_REQUEST)
+            if count_pending_approved_appointments >= 1:
+                print(count_pending_approved_appointments)
+                return Response({'error': 'Has been appointment.'},
+                                status=status.HTTP_400_BAD_REQUEST)
 
             new_appointment = Appointment(
                 patient=request.user.patient,
@@ -138,6 +189,21 @@ class AppointmentViewSet(viewsets.ViewSet):
         serializer = AppointmentSerializer(queryset, many=True)
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
+    @action(methods=['get'], url_path='get-user-appointment', detail=False)
+    def get_user_appointment(self, request):
+        today = date.today()
+        user_id = request.user.id
+        print(user_id)
+        user_appointment_now = Appointment.objects.filter(status__in=['approved', 'pending'],
+                                                          scheduled_date__gt=today,
+                                                          patient=Patient.objects.get(pk=user_id))
+        appointment = user_appointment_now.first()  # Lấy ra cuộc hẹn đầu tiên trong queryset
+        if appointment:
+            serializer = AppointmentSerializer(appointment)  # Sử dụng serializer cho cuộc hẹn duy nhất
+            return Response(data=serializer.data, status=status.HTTP_200_OK)
+        else:
+            return Response(data={"message": "Không có cuộc hẹn nào."}, status=status.HTTP_400_BAD_REQUEST)
+
     @action(methods=['patch'], url_path='status-change', detail=True)
     def status_change(self, request, pk=None):
         this_apm = Appointment.objects.get(pk=pk)
@@ -151,7 +217,9 @@ class AppointmentViewSet(viewsets.ViewSet):
                 appointment.status = new_status
                 appointment.nurse = user.nurse
                 if new_status == 'approved':
-                    latest_order_number = Appointment.objects.filter(scheduled_date=appointment.scheduled_date).aggregate(Max('order_number'))['order_number__max']
+                    latest_order_number = \
+                        Appointment.objects.filter(scheduled_date=appointment.scheduled_date).aggregate(
+                            Max('order_number'))['order_number__max']
                     if latest_order_number is not None:
                         appointment.order_number = latest_order_number + 1
                     else:
@@ -171,6 +239,22 @@ class AppointmentViewSet(viewsets.ViewSet):
 
         except Appointment.DoesNotExist:
             return Response({'error': 'Appointment not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    @action(methods=['patch'], url_path='user-cancel-appointment', detail=True)
+    def user_cancel_appointment(self, request, pk):
+        try:
+            appointment = Appointment.objects.get(pk=pk)
+            if appointment.status in ['pending', 'approved']:
+                appointment.status = 'cancelled'
+                appointment.save()
+                return Response({'message': 'Appointment cancelled successfully'}, status=status.HTTP_200_OK)
+            else:
+                return Response({'error': 'Cannot cancel appointment with current status'},
+                                status=status.HTTP_400_BAD_REQUEST)
+        except Appointment.DoesNotExist:
+            return Response({'error': 'Appointment not found'}, status=status.HTTP_404_NOT_FOUND)
+
+
 
     @action(methods=['patch'], url_path='cancel-appointment', detail=True)
     def cancel_appointment(self, request, pk=None):
@@ -207,6 +291,7 @@ class MedicineViewSet(viewsets.ViewSet, generics.ListAPIView):
 
 class PrescriptionViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.RetrieveAPIView):
     queryset = Prescription.objects.all()
+
     # permission_classes = [partial(perms.IsInGroup, allowed_groups=['DOCTOR'])]
     # serializer_class = serializers.PrescriptionSerializer
 
@@ -269,7 +354,6 @@ class PrescriptionViewSet(viewsets.ViewSet, generics.CreateAPIView, generics.Ret
         try:
             pres = Prescription.objects.filter(patient=request.user.patient).order_by('-created_date')
             if pres is not None:
-
                 return Response(serializers.PrescriptionListSerializer(pres, many=True).data, status=status.HTTP_200_OK)
         except Exception as e:
             return Response(dict(error=e.__str__()), status=status.HTTP_400_BAD_REQUEST)
@@ -322,6 +406,8 @@ import hmac
 import hashlib
 import json
 import requests
+
+
 @csrf_exempt
 def process_payment(request):
     if request.method == 'POST':
