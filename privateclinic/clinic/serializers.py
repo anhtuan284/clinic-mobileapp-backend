@@ -8,7 +8,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'username', 'password', 'avatar']
+        fields = ['id', 'first_name', 'last_name', 'email', 'username', 'password', 'avatar']
         extra_kwargs = {
             'password': {
                 'write_only': True
@@ -31,6 +31,12 @@ class UserSerializer(serializers.ModelSerializer):
         return u
 
 
+class UserNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name']
+
+
 class BaseSerialize(serializers.ModelSerializer):
     image = serializers.SerializerMethodField(source='avatar')
 
@@ -44,7 +50,6 @@ class BaseSerialize(serializers.ModelSerializer):
 
 
 class PatientSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Patient
         fields = '__all__'
@@ -52,6 +57,7 @@ class PatientSerializer(serializers.ModelSerializer):
 
 
 class DoctorSerializer(serializers.ModelSerializer):
+    user_info = UserSerializer()
 
     class Meta:
         model = Doctor
@@ -60,7 +66,6 @@ class DoctorSerializer(serializers.ModelSerializer):
 
 
 class NurseSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Nurse
         fields = '__all__'
@@ -68,28 +73,37 @@ class NurseSerializer(serializers.ModelSerializer):
 
 
 class ServiceSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Service
         fields = '__all__'
 
 
 class MedicineListSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Medicine
         fields = ['id', 'name', 'weight']
 
 
-class MedicineDetailSerializer(serializers.ModelSerializer):
+class MedicineNameSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Medicine
+        fields = ['name']
 
+
+class MedicineDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Medicine
         fields = '__all__'
 
 
-class PrescriptionSerializer(serializers.ModelSerializer):
+class ReceiptPaidSerializer(serializers.ModelSerializer):
 
+    class Meta:
+        model = Receipt
+        fields = ['total', 'paid']
+
+
+class PrescriptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Prescription
         fields = ['id', 'symptoms', 'diagnosis', 'patient', 'doctor', 'medicines', 'services']
@@ -97,8 +111,17 @@ class PrescriptionSerializer(serializers.ModelSerializer):
         prefetch_related = ['medicines', 'services']
 
 
-class PrescriptionMedicineSerializer(serializers.ModelSerializer):
+class PrescriptionListSerializer(serializers.ModelSerializer):
+    receipt = ReceiptPaidSerializer()
+    doctor = UserNameSerializer(source='doctor.user_info')
 
+    class Meta:
+        model = Prescription
+        fields = ['id', 'diagnosis', 'doctor', 'created_date', 'receipt']
+
+
+class PrescriptionMedicineSerializer(serializers.ModelSerializer):
+    medicine = MedicineNameSerializer()
     class Meta:
         model = PrescriptionMedicine
         fields = ['id', 'prescription', 'medicine', 'quantity', 'dosage']
@@ -107,17 +130,23 @@ class PrescriptionMedicineSerializer(serializers.ModelSerializer):
 class PrescriptionDetailSerializer(serializers.ModelSerializer):
     services = ServiceSerializer(many=True)
     dosages = PrescriptionMedicineSerializer(many=True)
+    receipt = ReceiptPaidSerializer()
 
     class Meta:
         model = Prescription
-        fields = ['id', 'symptoms', 'diagnosis', 'patient', 'doctor', 'services', 'dosages']
+        fields = ['id', 'symptoms', 'diagnosis', 'patient', 'doctor', 'services', 'dosages', 'receipt']
         select_related = ['patient', 'doctor']
         prefetch_related = ['medicines', 'services']
 
 
 class ReceiptSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Receipt
         fields = '__all__'
         select_related = ['nurse', 'prescription']
+
+
+class AppointmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Appointment
+        fields = '__all__'

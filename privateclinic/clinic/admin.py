@@ -65,15 +65,15 @@ class DepartmentScheduleAdmin(admin.ModelAdmin):
 
 
 class UserAdmin(admin.ModelAdmin):
-
-    def save_model(self, request, obj, form, change):
-        if obj.avatar:
-            if obj.avatar.size > 0:  # Check if the file size is greater than 0
-                cloudinary_response = cloudinary.uploader.upload(obj.avatar)
-                obj.avatar = 'https://res.cloudinary.com/drbd9x4ha/' + cloudinary_response['secure_url']
-        if not obj.pk:
-            obj.password = make_password(obj.password)
-        super().save_model(request, obj, form, change)
+    # def save_model(self, request, obj, form, change):
+    #     if obj.avatar:
+    #         if obj.avatar.size > 0:  # Check if the file size is greater than 0
+    #             cloudinary_response = cloudinary.uploader.upload(obj.avatar)
+    #             obj.avatar = 'https://res.cloudinary.com/drbd9x4ha/' + cloudinary_response['secure_url']
+    #     if not obj.pk:
+    #         obj.password = make_password(obj.password)
+    #     super().save_model(request, obj, form, change)
+    pass
 
 
 admin_site.register(Doctor)

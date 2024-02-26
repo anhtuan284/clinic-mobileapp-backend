@@ -51,13 +51,15 @@ class Doctor(models.Model):
     user_info = models.OneToOneField(User, related_name="doctor", null=False, primary_key=True, on_delete=models.CASCADE)
 
     class Specialty(models.TextChoices):
-        GENERAL_PRACTICE = 'G', 'General practice'
-        CLINICAL_RADIOLOGY = 'C', 'Clinical radiology'  # X quang lam san
-        ANAESTHESIA = 'A', 'Anaesthesia'  # Gay te
-        OPHTHALMOLOGY = 'O', 'Ophthalmology'  # Eye
+        GENERAL_PRACTICE = 'General practice', 'General practice'
+        CLINICAL_RADIOLOGY = 'Clinical radiology', 'Clinical radiology'  # X quang lam san
+        ANAESTHESIA = 'Anaesthesia', 'Anaesthesia'  # Gay te
+        OPHTHALMOLOGY = 'Ophthalmology', 'Ophthalmology'  # Eye
 
     salary = models.FloatField()
     specialty = models.CharField(max_length=200, choices=Specialty, default=Specialty.GENERAL_PRACTICE)
+    exp_year = models.PositiveIntegerField(default=3)
+    patients = models.PositiveIntegerField(default=5)
 
     def __str__(self):
         return "Dr. " + self.user_info.first_name + " " + self.user_info.last_name
@@ -138,16 +140,10 @@ class Appointment(BaseModel):
         CANCELLED = 'cancelled', 'Cancelled'
 
     patient = models.ForeignKey(Patient, related_name="appointments", on_delete=models.CASCADE)
-    scheduled_date = models.DateField(auto_now_add=True, null=False)
+    scheduled_date = models.DateField(null=False)
     status = models.CharField(max_length=20, choices=StatusChoices, default=StatusChoices.PENDING)
-    order_number = models.PositiveIntegerField(default=None, null=False)
+    order_number = models.PositiveIntegerField(default=None, null=True)
 
-    def save(self, *args, **kwargs):
-        if self.status.__eq__("approved"):
-            latest_order_number = Appointment.objects.filter(scheduled_date=self.scheduled_date).aggregate(Max('order_number'))['order_number__max']
-            if latest_order_number is not None:
-                self.order_number = latest_order_number + 1
-        super().save(*args, **kwargs)
 
     def __str__(self):
         return "Appointment for " + str(self.patient)

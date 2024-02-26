@@ -5,14 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="eb7c7064-2e56-468f-8cf9-c03481a8b4a7" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/privateclinic/clinic/middleware.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/privateclinic/clinic/pagination.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/privateclinic/clinic/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/privateclinic/clinic/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/privateclinic/clinic/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/privateclinic/clinic/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/privateclinic/clinic/paginator.py" beforeDir="false" afterPath="$PROJECT_DIR$/privateclinic/clinic/paginator.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/privateclinic/clinic/serializers.py" beforeDir="false" afterPath="$PROJECT_DIR$/privateclinic/clinic/serializers.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/privateclinic/clinic/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/privateclinic/clinic/urls.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/privateclinic/clinic/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/privateclinic/clinic/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/privateclinic/privateclinic/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/privateclinic/privateclinic/settings.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
     </list>
+    <list id="26ddca3a-3ce3-4266-9572-2954a7d766c5" name="Changes by voquochuy" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -116,7 +118,14 @@
       <option name="project" value="LOCAL" />
       <updated>1708536142185</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="auth mdw">
+      <created>1708620734392</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1708620734392</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -128,6 +137,7 @@
     <MESSAGE value="CU prescription" />
     <MESSAGE value="chartjs" />
     <MESSAGE value="direct paying" />
-    <option name="LAST_COMMIT_MESSAGE" value="direct paying" />
+    <MESSAGE value="auth mdw" />
+    <option name="LAST_COMMIT_MESSAGE" value="auth mdw" />
   </component>
 </project>
