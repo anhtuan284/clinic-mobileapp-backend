@@ -4,7 +4,6 @@ from rest_framework import serializers
 
 
 class UserSerializer(serializers.ModelSerializer):
-    avatar = serializers.SerializerMethodField(source="avatar")
 
     class Meta:
         model = User
@@ -15,13 +14,13 @@ class UserSerializer(serializers.ModelSerializer):
             }
         }
 
-    def get_avatar(self, user):
-        if user.avatar:
-            request = self.context.get('request')
-            if request:
-                return request.build_absolute_uri(user.avatar)
-            return user.avatar.url
-        return None
+    # def get_avatar(self, user):
+    #     if user.avatar:
+    #         request = self.context.get('request')
+    #         if request:
+    #             return request.build_absolute_uri(user.avatar)
+    #         return user.avatar.url
+    #     return None
 
     def create(self, validated_data):
         data = validated_data.copy()
@@ -54,7 +53,7 @@ class ChangePasswordSerializer(serializers.Serializer):
 class UserNameSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['first_name', 'last_name']
+        fields = ['id', 'first_name', 'last_name']
 
 
 class BaseSerialize(serializers.ModelSerializer):
@@ -167,6 +166,8 @@ class ReceiptSerializer(serializers.ModelSerializer):
 
 
 class AppointmentSerializer(serializers.ModelSerializer):
+    patient = UserNameSerializer(source="patient.user_info")
+
     class Meta:
         model = Appointment
         fields = '__all__'

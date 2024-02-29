@@ -53,7 +53,8 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView, PermissionRequiredMi
         try:
             data = request.data
             avatar = request.data.get("avatar")
-            new_avatar = cloudinary.uploader.upload(avatar)
+            new_avatar = cloudinary.uploader.upload(data.get('avatar'), folder='clinic_user/')
+
             new_user = User.objects.create_user(
                 first_name=data.get("first_name"),
                 last_name=data.get("last_name"),
@@ -62,8 +63,7 @@ class UserViewSet(viewsets.ViewSet, generics.CreateAPIView, PermissionRequiredMi
                 password=data.get("password"),
                 avatar=new_avatar['secure_url'],
             )
-            new_user.patient = Patient.objects.create(weight='0', allergies='Chưa có thông tin', user_info=new_user)
-            print(new_user.patient)
+            new_user.patient = Patient.objects.create(weight='0', allergies='No information', user_info=new_user)
             Group.objects.get(name='PATIENT').user_set.add(new_user)
             return Response(data=serializers.UserSerializer(new_user, context={'request': request}).data,
                             status=status.HTTP_201_CREATED)
@@ -130,7 +130,7 @@ class ChangePasswordView(generics.UpdateAPIView):
             sender_email = 'peteralwaysloveu@gmail.com'
             recipient_email = self.get_object().email
             print(recipient_email)
-            send_mail(subject, message, sender_email, [recipient_email])
+            send_mail(subject, message, sender_email, [recipient_email], fail_silently=True)
 
             return Response(response)
 
@@ -185,8 +185,8 @@ class AppointmentViewSet(viewsets.ViewSet):
     @action(methods=['get'], url_path='get-list-pending', detail=False)
     def get_list_pending(self, request):
         today = date.today()
-        queryset = Appointment.objects.filter(status='pending', created_date=today)
-        serializer = AppointmentSerializer(queryset, many=True)
+        queryset = Appointment.objects.order_by('-created_date').filter(status='pending', scheduled_date__gt=today)
+        serializer = AppointmentSerializer(queryset, many=True, context={'request': request})
         return Response(data=serializer.data, status=status.HTTP_200_OK)
 
     @action(methods=['get'], url_path='get-user-appointment', detail=False)
@@ -253,8 +253,6 @@ class AppointmentViewSet(viewsets.ViewSet):
                                 status=status.HTTP_400_BAD_REQUEST)
         except Appointment.DoesNotExist:
             return Response({'error': 'Appointment not found'}, status=status.HTTP_404_NOT_FOUND)
-
-
 
     @action(methods=['patch'], url_path='cancel-appointment', detail=True)
     def cancel_appointment(self, request, pk=None):
@@ -365,7 +363,7 @@ class ReceiptViewSet(viewsets.ViewSet, generics.RetrieveAPIView):
 
     def get_permissions(self):
         if self.action in ['update_paid']:
-            return [perms.IsInGroup(allowed_groups=['NURSE'])]
+            return [perms.IsInGroup(allowed_groups=['NURSE', 'PATIENT'])]
         return [perms.IsInGroup(allowed_groups=['NURSE', 'DOCTOR'])]
 
     @action(methods=['patch'], detail=True, url_path='update-paid')
@@ -425,7 +423,7 @@ def process_payment(request):
         secret_key = "K951B6PE1waDMi640xX08PD3vg6EkVlz"
         order_info = "Thanh chi phi kham benh"
         redirect_url = "http://127.0.0.1:8000/"  # Thay đổi URL redirect tại đây
-        ipn_url = "https://your-ipn-url.com"  # Thay đổi URL IPN tại đây
+        ipn_url = "http://127.0.0.1:8000"  # Thay đổi URL IPN tại đây
 
         # Tạo chuỗi chữ ký
         raw_signature = "accessKey=" + access_key + "&amount=" + str(amount) + "&extraData=" + "" \
